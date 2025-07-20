@@ -1,0 +1,5 @@
+{
+  "project": "user-service",
+  "template": "microservice-infrastructure.yaml",
+  "stack-prefix": "api"
+}

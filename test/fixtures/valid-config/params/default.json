@@ -1,0 +1,6 @@
+{
+  "Environment": "default",
+  "ProjectName": "test-project",
+  "Region": "us-east-1",
+  "DefaultParam": "default-value"
+}

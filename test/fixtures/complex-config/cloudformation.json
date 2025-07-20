@@ -1,0 +1,5 @@
+{
+  "project": "complex-project",
+  "template": "infrastructure.yaml",
+  "stack-prefix": "microservice"
+}

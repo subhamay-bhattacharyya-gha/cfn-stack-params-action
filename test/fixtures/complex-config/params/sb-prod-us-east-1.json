@@ -1,0 +1,23 @@
+{
+  "VpcId": "vpc-prod-123456",
+  "InstanceType": "t3.large",
+  "Environment": "sb-prod-us-east-1",
+  "MinCapacity": 3,
+  "MaxCapacity": 50,
+  "EnableLogging": true,
+  "BackupRetention": 30,
+  "DatabaseEngine": "mysql",
+  "DatabaseVersion": "8.0.35",
+  "MultiAZ": true,
+  "StorageEncrypted": true,
+  "MonitoringInterval": 60,
+  "PerformanceInsightsEnabled": true,
+  "AlarmEmail": "alerts@company.com",
+  "SSLCertificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012",
+  "Tags": {
+    "Owner": "DevOps",
+    "CostCenter": "Engineering",
+    "Environment": "Production",
+    "Backup": "Required"
+  }
+}

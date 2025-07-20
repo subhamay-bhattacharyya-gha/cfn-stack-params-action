@@ -1,0 +1,19 @@
+{
+  "VpcId": "vpc-default",
+  "InstanceType": "t3.micro",
+  "Environment": "default",
+  "MinCapacity": 1,
+  "MaxCapacity": 10,
+  "EnableLogging": true,
+  "BackupRetention": 7,
+  "DatabaseEngine": "mysql",
+  "DatabaseVersion": "8.0",
+  "MultiAZ": false,
+  "StorageEncrypted": true,
+  "MonitoringInterval": 60,
+  "PerformanceInsightsEnabled": false,
+  "Tags": {
+    "Owner": "DevOps",
+    "CostCenter": "Engineering"
+  }
+}

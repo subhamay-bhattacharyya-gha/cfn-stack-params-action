@@ -1,0 +1,10 @@
+{
+  "Environment": "us-east-1",
+  "EnableLogging": true,
+  "BackupRetentionDays": 14,
+  "ReplicationRegions": "us-west-2,eu-west-1",
+  "EnableGlobalTables": true,
+  "EnableCloudFront": true,
+  "CertificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/12345678-1234-1234-1234-123456789012",
+  "DomainName": "us-east.example.com"
+}

@@ -1,0 +1,10 @@
+{
+  "InstanceType": "t3.micro",
+  "Environment": "default",
+  "MinCapacity": 1,
+  "MaxCapacity": 3,
+  "EnableLogging": false,
+  "SSLCertificateArn": "",
+  "DomainName": "example.com",
+  "HealthCheckPath": "/health"
+}

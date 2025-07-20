@@ -1,0 +1,5 @@
+{
+  "project": "test-project",
+  "template": "template.yaml",
+  "stack-prefix": "api"
+}

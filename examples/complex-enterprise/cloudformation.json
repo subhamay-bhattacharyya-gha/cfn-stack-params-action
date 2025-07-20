@@ -1,0 +1,5 @@
+{
+  "project": "enterprise-platform",
+  "template": "enterprise-infrastructure.yaml",
+  "stack-prefix": "platform"
+}

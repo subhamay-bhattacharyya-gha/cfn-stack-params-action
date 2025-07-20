@@ -1,0 +1,5 @@
+{
+  "project": "global-app",
+  "template": "multi-region-template.yaml",
+  "stack-prefix": "global"
+}
