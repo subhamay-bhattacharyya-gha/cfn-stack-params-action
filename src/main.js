@@ -78,7 +78,7 @@ async function run() {
       isCiBuild,
       environment
     );
-    core.info(`Generated stack name: ${stackName}`);)
+    core.info(`Generated stack name: ${stackName}`);
 
     // Set action outputs
     core.info('Setting action outputs...');
