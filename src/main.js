@@ -48,9 +48,25 @@ async function run() {
       core.info('No environment-specific parameters found, using defaults only');
     }
 
+    // Generate CI build ID first (needed for parameters)
+    core.info('Generating CI build ID...');
+    const ciBuildId = isCiBuild ? ciBuildIdGenerator.generateRandomId() : '';
+    if (ciBuildId) {
+      core.info(`Generated CI build ID: ${ciBuildId}`);
+    } else {
+      core.info('CI build ID not generated (not in CI build mode)');
+    }
+
     // Merge parameters
     core.info('Merging parameters...');
     const mergedParams = parameterMerger.mergeParameters(defaultParams, envParams);
+    
+    // Add CiBuildId parameter if this is a CI build
+    if (isCiBuild && ciBuildId) {
+      mergedParams.CiBuildId = ciBuildId;
+      core.info(`Added CiBuildId parameter: ${ciBuildId}`);
+    }
+    
     const formattedParams = parameterMerger.formatForCloudFormation(mergedParams);
     core.info(`Generated ${formattedParams.length} CloudFormation parameters`);
 
@@ -62,16 +78,7 @@ async function run() {
       isCiBuild,
       environment
     );
-    core.info(`Generated stack name: ${stackName}`);
-
-    // Generate CI build ID
-    core.info('Generating CI build ID...');
-    const ciBuildId = isCiBuild ? ciBuildIdGenerator.generateRandomId() : '';
-    if (ciBuildId) {
-      core.info(`Generated CI build ID: ${ciBuildId}`);
-    } else {
-      core.info('CI build ID not generated (not in CI build mode)');
-    }
+    core.info(`Generated stack name: ${stackName}`);)
 
     // Set action outputs
     core.info('Setting action outputs...');
