@@ -10,10 +10,10 @@ import { CiBuildIdGenerator } from './ci-build-id-generator.js';
  */
 async function run() {
   try {
-    // Get action inputs
-    const folder = core.getInput('cfn-directory') || 'cfn';
-    const ciBuildInput = core.getInput('ci-build');
-    const environment = core.getInput('environment');
+    // Get action inputs from environment variables (composite action)
+    const folder = process.env.INPUT_CFN_DIRECTORY || 'cfn';
+    const ciBuildInput = process.env.INPUT_CI_BUILD || 'false';
+    const environment = process.env.INPUT_ENVIRONMENT || '';
 
     // Validate and parse ci-build input
     const isCiBuild = parseBooleanInput(ciBuildInput);
