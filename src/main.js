@@ -61,10 +61,10 @@ async function run() {
     core.info('Merging parameters...');
     const mergedParams = parameterMerger.mergeParameters(defaultParams, envParams);
     
-    // Add CiBuildId parameter if this is a CI build
+    // Add CiBuildId parameter if this is a CI build (with dash prefix)
     if (isCiBuild && ciBuildId) {
-      mergedParams.CiBuildId = ciBuildId;
-      core.info(`Added CiBuildId parameter: ${ciBuildId}`);
+      mergedParams.CiBuildId = `-${ciBuildId}`;
+      core.info(`Added CiBuildId parameter: -${ciBuildId}`);
     }
     
     const formattedParams = parameterMerger.formatForCloudFormation(mergedParams);
@@ -72,19 +72,30 @@ async function run() {
 
     // Generate stack name
     core.info('Generating stack name...');
-    const stackName = await stackNameGenerator.generateStackName(
+    let stackName = await stackNameGenerator.generateStackName(
       config.project,
       config['stack-prefix'],
       isCiBuild,
       environment
     );
+    
+    // Add CI build ID suffix to stack name if this is a CI build
+    if (isCiBuild && ciBuildId) {
+      stackName = `${stackName}-${ciBuildId}`;
+      
+      // Trim to maximum 128 characters if needed
+      if (stackName.length > 128) {
+        stackName = stackName.substring(0, 128);
+        core.info(`Stack name trimmed to 128 characters: ${stackName}`);
+      }
+    }
+    
     core.info(`Generated stack name: ${stackName}`);
 
     // Set action outputs
     core.info('Setting action outputs...');
     core.setOutput('parameters', JSON.stringify(formattedParams));
     core.setOutput('stack-name', stackName);
-    core.setOutput('ci-build-id', ciBuildId);
 
     core.info('Action completed successfully!');
     

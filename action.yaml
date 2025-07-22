@@ -26,9 +26,6 @@ outputs:
   stack-name:
     description: 'Generated CloudFormation stack name'
     value: ${{ steps.process-config.outputs.stack-name }}
-  ci-build-id:
-    description: 'CI build identifier (random string for CI builds, empty for environment deployments)'
-    value: ${{ steps.process-config.outputs.ci-build-id }}
 
 runs:
   using: 'composite'
