@@ -1,6 +1,8 @@
 # CloudFormation Configuration Processor Action
 
-![Built with Kiro](https://img.shields.io/badge/Built%20with-Kiro-blue?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K)&nbsp;![Release](https://github.com/subhamay-bhattacharyya-gha/cfn-stack-params-action/actions/workflows/release.yaml/badge.svg)&nbsp;![Commit Activity](https://img.shields.io/github/commit-activity/t/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Last Commit](https://img.shields.io/github/last-commit/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Release Date](https://img.shields.io/github/release-date/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Repo Size](https://img.shields.io/github/repo-size/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![File Count](https://img.shields.io/github/directory-file-count/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Issues](https://img.shields.io/github/issues/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Top Language](https://img.shields.io/github/languages/top/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Custom Endpoint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bsubhamay/4b247fb46db91d8488e878ac1b4d3920/raw/cfn-stack-params-action.json?)
+# GitHub Action Template Repository
+
+![Built with Kiro](https://img.shields.io/badge/Built%20with-Kiro-blue?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K)&nbsp;![GitHub Action](https://img.shields.io/badge/GitHub-Action-blue?logo=github)&nbsp;![Release](https://github.com/subhamay-bhattacharyya-gha/cfn-stack-params-action/actions/workflows/release.yaml/badge.svg)&nbsp;![Commit Activity](https://img.shields.io/github/commit-activity/t/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Bash](https://img.shields.io/badge/Language-Bash-green?logo=gnubash)&nbsp;![CloudFormation](https://img.shields.io/badge/AWS-CloudFormation-orange?logo=amazonaws)&nbsp;![Last Commit](https://img.shields.io/github/last-commit/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Release Date](https://img.shields.io/github/release-date/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Repo Size](https://img.shields.io/github/repo-size/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![File Count](https://img.shields.io/github/directory-file-count/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Issues](https://img.shields.io/github/issues/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Top Language](https://img.shields.io/github/languages/top/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Custom Endpoint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bsubhamay/4b247fb46db91d8488e878ac1b4d3920/raw/cfn-stack-params-action.json?)
 
 A GitHub Action that processes CloudFormation deployment configurations, merges parameter files with environment-specific overrides, and generates outputs for CloudFormation stack deployment including parameter arrays, stack names, and CI build identifiers.
 
@@ -17,7 +19,7 @@ A GitHub Action that processes CloudFormation deployment configurations, merges 
 
 ```yaml
 - name: Process CloudFormation Configuration
-  uses: subhamay-bhattacharyya-gha/cfn-stack-params-action@v1
+  uses: subhamay-bhattacharyya-gha/cfn-stack-params-action@main
   with:
     cfn-directory: 'infrastructure'
     ci-build: 'false'
@@ -25,7 +27,7 @@ A GitHub Action that processes CloudFormation deployment configurations, merges 
   id: cfn-config
 
 - name: Deploy CloudFormation Stack
-  uses: aws-actions/aws-cloudformation-github-deploy@v1
+  uses: subhamay-bhattacharyya/cfn-create-stack-action@main
   with:
     name: ${{ steps.cfn-config.outputs.stack-name }}
     template: infrastructure/template.yaml
@@ -183,7 +185,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Process CloudFormation Configuration
-        uses: subhamay-bhattacharyya-gha/cfn-stack-params-action@v1
+        uses: subhamay-bhattacharyya-gha/cfn-stack-params-action@main
         with:
           cfn-directory: 'infrastructure'
           ci-build: 'false'
@@ -214,7 +216,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Process CloudFormation Configuration
-        uses: subhamay-bhattacharyya-gha/cfn-stack-params-action@v1
+        uses: subhamay-bhattacharyya-gha/cfn-stack-params-action@main
         with:
           cfn-directory: 'cfn'
           ci-build: 'true'
@@ -250,7 +252,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Process CloudFormation Configuration
-        uses: subhamay-bhattacharyya-gha/cfn-stack-params-action@v1
+        uses: subhamay-bhattacharyya-gha/cfn-stack-params-action@main
         with:
           cfn-directory: 'infrastructure'
           ci-build: 'false'
@@ -269,7 +271,7 @@ jobs:
 
 ```yaml
 - name: Process CloudFormation Configuration
-  uses: subhamay-bhattacharyya-gha/cfn-stack-params-action@v1
+  uses: subhamay-bhattacharyya-gha/cfn-stack-params-action@main
   with:
     cfn-directory: 'aws/cloudformation'
     ci-build: 'false'
@@ -382,7 +384,7 @@ cfn-directory: 'infrastucture'   # Typo in directory name
 steps:
   - uses: actions/checkout@v4  # Required for Git operations
   - name: Process CloudFormation Configuration
-    uses: subhamay-bhattacharyya-gha/cfn-stack-params-action@v1
+    uses: subhamay-bhattacharyya-gha/cfn-stack-params-action@main
     with:
       ci-build: 'true'
 ```
