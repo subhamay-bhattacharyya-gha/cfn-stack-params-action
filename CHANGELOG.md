@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/subhamay-bhattacharyya-gha/cfn-stack-params-action/compare/v1.1.0...v1.2.0) (2025-07-29)
+
+
+### Features
+
+* add dependencies for @actions/core and @actions/github ([0bd6d05](https://github.com/subhamay-bhattacharyya-gha/cfn-stack-params-action/commit/0bd6d051d70bdcf1e4433d84db9150a709b87b08))
+* add dependencies for GitHub Actions integration ([0520b2e](https://github.com/subhamay-bhattacharyya-gha/cfn-stack-params-action/commit/0520b2ee40bc039da103f4edbc093ffb18bd7efb))
+
 # [1.1.0](https://github.com/subhamay-bhattacharyya-gha/cfn-stack-params-action/compare/v1.0.0...v1.1.0) (2025-07-29)
 
 
