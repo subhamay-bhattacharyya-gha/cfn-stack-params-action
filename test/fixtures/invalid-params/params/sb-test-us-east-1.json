@@ -1,0 +1,5 @@
+{
+  "param1": "override1",
+  "param3": "value3"
+  // Invalid JSON comment
+}
