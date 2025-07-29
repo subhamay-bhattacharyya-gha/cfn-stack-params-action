@@ -1,0 +1,14 @@
+{
+  "Environment": "default",
+  "InstanceType": "t3.micro",
+  "MinCapacity": 1,
+  "MaxCapacity": 3,
+  "EnableLogging": false,
+  "BackupRetentionDays": 7,
+  "EnableCrossRegionBackup": false,
+  "ReplicationRegions": "",
+  "EnableGlobalTables": false,
+  "EnableCloudFront": false,
+  "CertificateArn": "",
+  "DomainName": "example.com"
+}

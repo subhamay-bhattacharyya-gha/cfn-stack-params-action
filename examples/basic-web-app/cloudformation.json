@@ -1,0 +1,5 @@
+{
+  "project": "my-web-app",
+  "template": "web-app-template.yaml",
+  "stack-prefix": "webapp"
+}

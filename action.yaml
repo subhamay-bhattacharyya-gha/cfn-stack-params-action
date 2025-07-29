@@ -1,44 +1,50 @@
-name: 'Action Name'
-description: 'Action Description'
+name: 'CloudFormation Configuration Processor'
+description: 'Process CloudFormation deployment configurations and generate parameters, stack names, and CI build identifiers'
+author: 'GitHub'
+branding:
+  icon: 'cloud'
+  color: 'orange'
 
 inputs:
-  input-1:
-    description: Input description.
+  cfn-directory:
+    description: 'Folder containing CloudFormation configuration files'
     required: false
-    default: default-value
-  input-2:
-    description: Input description.
+    default: 'cfn'
+  ci-build:
+    description: 'Whether this is a CI build (true/false)'
     required: false
-    default: default-value
-  input-3:
-    description: Input description.
+    default: 'false'
+  environment:
+    description: 'Target environment name'
     required: false
-    default: default-value
-  github-token:
-    description: 'GitHub token'
-    required: true
+    default: ''
+
+outputs:
+  parameters:
+    description: 'JSON array of CloudFormation parameters'
+    value: ${{ steps.process-config.outputs.parameters }}
+  stack-name:
+    description: 'Generated CloudFormation stack name'
+    value: ${{ steps.process-config.outputs.stack-name }}
 
 runs:
   using: 'composite'
   steps:
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
       with:
-        python-version: 3.x
+        node-version: '20'
 
-    - name: Sample step to call GitHub API
+    - name: Install dependencies
       shell: bash
-      env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
-      run: |
-        ISSUE_NUMBER="${{ github.event.issue.number }}"
-        REPO="${{ github.repository }}"
-        OWNER=$(echo $REPO | cut -d'/' -f1)
-        BRANCH_NAME="${{ steps.create-branch.outputs.branch-name }}"
-        COMMENT_BODY="Branch [$BRANCH_NAME](https://github.com/$OWNER/$REPO/tree/$BRANCH_NAME) created 🚀"
+      run: npm install
+      working-directory: ${{ github.action_path }}
 
-        curl -s -X POST \
-          -H "Authorization: token $GITHUB_TOKEN" \
-          -H "Content-Type: application/json" \
-          -d "{\"body\": \"$COMMENT_BODY\"}" \
-          https://api.github.com/repos/$REPO/issues/$ISSUE_NUMBER/comments
+    - name: Run CloudFormation Configuration Processor
+      id: process-config
+      shell: bash
+      run: node ${{ github.action_path }}/src/main.js
+      env:
+        INPUT_CFN_DIRECTORY: ${{ inputs.cfn-directory }}
+        INPUT_CI_BUILD: ${{ inputs.ci-build }}
+        INPUT_ENVIRONMENT: ${{ inputs.environment }}

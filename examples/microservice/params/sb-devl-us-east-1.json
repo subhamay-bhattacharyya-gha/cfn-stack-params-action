@@ -1,0 +1,10 @@
+{
+  "VpcId": "vpc-devl-123456",
+  "SubnetIds": "subnet-devl1,subnet-devl2",
+  "Environment": "sb-devl-us-east-1",
+  "EnableLogging": true,
+  "LogRetentionDays": 14,
+  "DatabaseInstanceClass": "db.t3.small",
+  "EnableCloudWatchLogs": true,
+  "SlowQueryLogEnabled": true
+}
