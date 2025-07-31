@@ -18,6 +18,10 @@ inputs:
     description: 'Target environment name'
     required: false
     default: ''
+  retention-days:
+    description: 'Number of days to retain the deployment artifact'
+    required: false
+    default: '7'
 
 outputs:
   parameters:
@@ -48,3 +52,59 @@ runs:
         INPUT_CFN_DIRECTORY: ${{ inputs.cfn-directory }}
         INPUT_CI_BUILD: ${{ inputs.ci-build }}
         INPUT_ENVIRONMENT: ${{ inputs.environment }}
+
+    - name: Print Action Outputs
+      shell: bash
+      run: |
+        echo "=== CloudFormation Configuration Processor Outputs ==="
+        echo "Stack Name: ${{ steps.process-config.outputs.stack-name }}"
+        echo "Parameters: ${{ steps.process-config.outputs.parameters }}"
+        echo "========================================================="
+
+    - name: Create Deployment JSON File
+      id: create-deployment-json
+      shell: bash
+      run: |
+        echo "Creating deployment JSON file..."
+        # Create directory for artifacts
+        mkdir -p artifacts
+        # Create JSON file with parameters and stack-name
+        cat > artifacts/deployment.json << EOF
+        {
+          "parameters": ${{ steps.process-config.outputs.parameters }},
+          "stack-name": "${{ steps.process-config.outputs.stack-name }}"
+        }
+        EOF
+        echo "✅ Created deployment.json:"
+        cat artifacts/deployment.json
+
+    - name: Display Prepared Parameters
+      shell: bash
+      run: |
+        echo "## 📋 CloudFormation Parameters" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Configuration Directory:** \`${{ inputs.cfn-directory }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Stack Name:** \`${{ steps.process-config.outputs.stack-name }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ -n "${{ steps.process-config.outputs.parameters }}" ]; then
+          echo "### Prepared Parameters:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+          echo '${{ steps.process-config.outputs.parameters }}' | jq . >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "✅ CloudFormation parameters prepared successfully"
+          echo "Prepared parameters:"
+          echo "${{ steps.process-config.outputs.parameters }}"
+        else
+          echo "### ⚠️ No Parameters Found" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "No parameters were found or prepared from the configuration." >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ No parameters found in the configuration"
+        fi
+
+    - name: Upload Deployment JSON as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: deployment-parameters
+        path: artifacts/deployment.json
+        retention-days: ${{ inputs.retention-days }}

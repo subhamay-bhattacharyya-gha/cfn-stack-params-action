@@ -867,7 +867,7 @@ jobs:
 
 These workflow examples demonstrate various deployment patterns and can be adapted to your specific needs. Remember to:
 
-1. Use `subhamay-bhattacharyya-gha/cfn-stack-params-action@v1` as the action reference
+1. Use `subhamay-bhattacharyya-gha/cfn-stack-params-action@main` as the action reference
 2. Configure appropriate AWS credentials and permissions
 3. Customize health checks and validation steps for your application
 4. Set up proper GitHub environments with protection rules

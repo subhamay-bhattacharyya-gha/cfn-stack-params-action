@@ -3,7 +3,7 @@
 ![Built with Kiro](https://img.shields.io/badge/Built%20with-Kiro-blue?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K)&nbsp;![GitHub Action](https://img.shields.io/badge/GitHub-Action-blue?logo=github)&nbsp;![Release](https://github.com/subhamay-bhattacharyya-gha/cfn-stack-params-action/actions/workflows/release.yaml/badge.svg)&nbsp;![Commit Activity](https://img.shields.io/github/commit-activity/t/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Bash](https://img.shields.io/badge/Language-Bash-green?logo=gnubash)&nbsp;![CloudFormation](https://img.shields.io/badge/AWS-CloudFormation-orange?logo=amazonaws)&nbsp;![Last Commit](https://img.shields.io/github/last-commit/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Release Date](https://img.shields.io/github/release-date/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Repo Size](https://img.shields.io/github/repo-size/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![File Count](https://img.shields.io/github/directory-file-count/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Issues](https://img.shields.io/github/issues/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Top Language](https://img.shields.io/github/languages/top/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Custom Endpoint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bsubhamay/4b247fb46db91d8488e878ac1b4d3920/raw/cfn-stack-params-action.json?)
 
 
-A GitHub Action that processes CloudFormation deployment configurations, merges parameter files with environment-specific overrides, and generates outputs for CloudFormation stack deployment including parameter arrays, stack names, and CI build identifiers.
+A GitHub Action that processes CloudFormation deployment configurations, merges parameter files with environment-specific overrides, and generates outputs for CloudFormation stack deployment. Features include parameter processing, dynamic stack naming with CI build integration, GitHub Action summaries, and deployment artifact creation.
 
 ## Features
 
@@ -12,6 +12,8 @@ A GitHub Action that processes CloudFormation deployment configurations, merges 
 - 🏷️ **Dynamic Stack Naming**: Generates appropriate stack names for both CI builds and environment deployments
 - 🎲 **CI Build Identifiers**: Creates unique identifiers for CI builds to enable parallel deployments
 - ✅ **Comprehensive Validation**: Validates JSON files and required fields with clear error messages
+- 📊 **GitHub Action Summary**: Displays processed parameters and configuration in the workflow summary
+- 📦 **Deployment Artifacts**: Creates and uploads deployment JSON files for reuse and audit trails
 - 🧪 **Well Tested**: Extensive unit and integration test coverage
 
 ## Quick Start
@@ -52,6 +54,7 @@ A GitHub Action that processes CloudFormation deployment configurations, merges 
 | `cfn-directory` | Folder containing CloudFormation configuration files | No | `cfn` | `infrastructure` |
 | `ci-build` | Whether this is a CI build (true/false) | No | `false` | `true` |
 | `environment` | Target environment name | No | `''` | `sb-prod-us-east-1` |
+| `retention-days` | Number of days to retain the deployment artifact | No | `7` | `30` |
 
 ### Input Details
 
@@ -70,13 +73,15 @@ Environment identifier used for:
 - Loading environment-specific parameter files (`params/{environment}.json`)
 - Stack naming when `ci-build` is `false`
 
+#### `retention-days`
+Specifies how many days to retain the deployment artifact in GitHub Actions. The deployment JSON file containing parameters and stack name will be uploaded as an artifact and retained for the specified number of days. Useful for audit trails and debugging deployment issues.
+
 ## Outputs
 
 | Name | Description | Type | Example |
 |------|-------------|------|---------|
 | `parameters` | CloudFormation parameters in JSON array format | String | `[{"ParameterName":"VpcId","ParameterValue":"vpc-123"}]` |
 | `stack-name` | Generated CloudFormation stack name | String | `myproject-api-sb-prod-us-east-1` |
-| `ci-build-id` | CI build identifier (random string for CI builds, empty otherwise) | String | `abcdefgh` |
 
 ### Output Details
 
@@ -93,12 +98,10 @@ JSON string containing an array of CloudFormation parameters in the format:
 
 #### `stack-name`
 Generated stack name following these patterns:
-- **CI Build**: `{project}-{stack-prefix}-{sanitized-branch-name}`
+- **CI Build**: `{project}-{stack-prefix}-{sanitized-branch-name}-{ci-build-id}` (automatically includes CI build ID suffix)
 - **Environment**: `{project}-{stack-prefix}-{environment}`
 
-#### `ci-build-id`
-- **CI Build**: Random 6-10 character lowercase string (e.g., `abcdefgh`)
-- **Environment**: Empty string
+For CI builds, the stack name automatically includes a unique CI build identifier suffix and is trimmed to 128 characters if needed to comply with CloudFormation limits.
 
 ## Configuration Structure
 
@@ -164,7 +167,14 @@ Environment-specific parameters that override defaults:
 1. Default parameters are loaded first
 2. Environment-specific parameters override matching keys
 3. Environment-specific parameters can add new keys
-4. Final output contains merged parameters in CloudFormation format
+4. For CI builds, a `CiBuildId` parameter is automatically added with value `-{ci-build-id}`
+5. Final output contains merged parameters in CloudFormation format
+
+**Deployment Artifacts:**
+The action automatically creates a `deployment.json` file containing:
+- Processed CloudFormation parameters
+- Generated stack name
+- Uploaded as a GitHub Actions artifact for the specified retention period
 
 ## Usage Examples
 
@@ -225,7 +235,6 @@ jobs:
       - name: Deploy Feature Stack
         run: |
           echo "Stack Name: ${{ steps.cfn-config.outputs.stack-name }}"
-          echo "CI Build ID: ${{ steps.cfn-config.outputs.ci-build-id }}"
           echo "Parameters: ${{ steps.cfn-config.outputs.parameters }}"
 ```
 
@@ -275,7 +284,32 @@ jobs:
     cfn-directory: 'aws/cloudformation'
     ci-build: 'false'
     environment: 'production'
+    retention-days: '30'  # Keep artifacts for 30 days
   id: cfn-config
+```
+
+### Using Deployment Artifacts
+
+```yaml
+- name: Process CloudFormation Configuration
+  uses: subhamay-bhattacharyya-gha/cfn-stack-params-action@main
+  with:
+    cfn-directory: 'infrastructure'
+    ci-build: 'false'
+    environment: 'production'
+    retention-days: '90'  # Long retention for production
+  id: cfn-config
+
+- name: Download Deployment Artifact (in another job)
+  uses: actions/download-artifact@v4
+  with:
+    name: deployment-parameters
+    path: ./deployment
+
+- name: Use Deployment Configuration
+  run: |
+    STACK_NAME=$(jq -r '.["stack-name"]' deployment/deployment.json)
+    echo "Deploying to stack: $STACK_NAME"
 ```
 
 ## Error Scenarios
