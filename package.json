@@ -2,13 +2,14 @@
   "name": "cfn-stack-params-action",
   "version": "0.0.0",
   "description": "GitHub reusable action to prepare CloudFormation stack parameters using semantic release with custom plugins.",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "release": "semantic-release"
   },
   "dependencies": {
-    "@actions/core": "^1.10.0",
-    "@actions/github": "^5.1.0"
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
@@ -16,9 +17,9 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^11.0.3",
     "@semantic-release/release-notes-generator": "^14.0.3",
-    "commitizen": "^4.3.0",
+    "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
-    "semantic-release": "^24.2.7"
+    "semantic-release": "^24.8.0"
   },
   "config": {
     "commitizen": {

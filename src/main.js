@@ -17,7 +17,7 @@ async function run() {
 
     // Validate and parse ci-build input
     const isCiBuild = parseBooleanInput(ciBuildInput);
-    
+
     // Validate inputs
     validateInputs(folder, isCiBuild, environment);
 
@@ -60,13 +60,13 @@ async function run() {
     // Merge parameters
     core.info('Merging parameters...');
     const mergedParams = parameterMerger.mergeParameters(defaultParams, envParams);
-    
+
     // Add CiBuildId parameter if this is a CI build (with dash prefix)
     if (isCiBuild && ciBuildId) {
       mergedParams.CiBuildId = `-${ciBuildId}`;
       core.info(`Added CiBuildId parameter: -${ciBuildId}`);
     }
-    
+
     const formattedParams = parameterMerger.formatForCloudFormation(mergedParams);
     core.info(`Generated ${formattedParams.length} CloudFormation parameters`);
 
@@ -78,18 +78,18 @@ async function run() {
       isCiBuild,
       environment
     );
-    
+
     // Add CI build ID suffix to stack name if this is a CI build
     if (isCiBuild && ciBuildId) {
       stackName = `${stackName}-${ciBuildId}`;
-      
+
       // Trim to maximum 128 characters if needed
       if (stackName.length > 128) {
         stackName = stackName.substring(0, 128);
         core.info(`Stack name trimmed to 128 characters: ${stackName}`);
       }
     }
-    
+
     core.info(`Generated stack name: ${stackName}`);
 
     // Set action outputs
@@ -98,7 +98,7 @@ async function run() {
     core.setOutput('stack-name', stackName);
 
     core.info('Action completed successfully!');
-    
+
   } catch (error) {
     core.setFailed(`Action failed: ${error.message}`);
     core.debug(`Error stack: ${error.stack}`);
@@ -115,9 +115,9 @@ function parseBooleanInput(input) {
   if (!input) {
     return false; // Default to false if not provided
   }
-  
+
   const normalizedInput = input.toLowerCase().trim();
-  
+
   if (normalizedInput === 'true') {
     return true;
   } else if (normalizedInput === 'false') {
@@ -158,12 +158,12 @@ function validateInputs(folder, isCiBuild, environment) {
   // Validate environment name format if provided
   if (environment && typeof environment === 'string' && environment.trim() !== '') {
     const envName = environment.trim();
-    
+
     // Check environment name length
     if (envName.length > 100) {
       throw new Error('Environment name is too long. Maximum length is 100 characters.');
     }
-    
+
     // Check for valid environment name characters (alphanumeric, hyphens, underscores)
     if (!/^[a-zA-Z0-9_-]+$/.test(envName)) {
       throw new Error('Environment name contains invalid characters. Only alphanumeric characters, hyphens, and underscores are allowed.');
