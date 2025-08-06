@@ -30,6 +30,9 @@ outputs:
   stack-name:
     description: 'Generated CloudFormation stack name'
     value: ${{ steps.process-config.outputs.stack-name }}
+  template:
+    description: 'CloudFormation template filename from configuration'
+    value: ${{ steps.process-config.outputs.template }}
 
 runs:
   using: 'composite'
@@ -57,6 +60,7 @@ runs:
       shell: bash
       run: |
         echo "=== CloudFormation Configuration Processor Outputs ==="
+        echo "Template: ${{ steps.process-config.outputs.template }}"
         echo "Stack Name: ${{ steps.process-config.outputs.stack-name }}"
         echo "Parameters: ${{ steps.process-config.outputs.parameters }}"
         echo "========================================================="
@@ -68,11 +72,12 @@ runs:
         echo "Creating deployment JSON file..."
         # Create directory for artifacts
         mkdir -p artifacts
-        # Create JSON file with parameters and stack-name
+        # Create JSON file with parameters, stack-name, and template path
         cat > artifacts/deployment.json << EOF
         {
           "parameters": ${{ steps.process-config.outputs.parameters }},
-          "stack-name": "${{ steps.process-config.outputs.stack-name }}"
+          "stack-name": "${{ steps.process-config.outputs.stack-name }}",
+          "template-path": "${{ inputs.cfn-directory }}/${{ steps.process-config.outputs.template }}"
         }
         EOF
         echo "✅ Created deployment.json:"
@@ -81,9 +86,10 @@ runs:
     - name: Display Prepared Parameters
       shell: bash
       run: |
-        echo "## 📋 CloudFormation Parameters" >> $GITHUB_STEP_SUMMARY
+        echo "## 📋 CloudFormation Configuration" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Configuration Directory:** \`${{ inputs.cfn-directory }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Template:** \`${{ steps.process-config.outputs.template }}\`" >> $GITHUB_STEP_SUMMARY
         echo "**Stack Name:** \`${{ steps.process-config.outputs.stack-name }}\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         if [ -n "${{ steps.process-config.outputs.parameters }}" ]; then

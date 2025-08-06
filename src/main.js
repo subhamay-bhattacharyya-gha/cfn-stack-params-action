@@ -96,6 +96,7 @@ async function run() {
     core.info('Setting action outputs...');
     core.setOutput('parameters', JSON.stringify(formattedParams));
     core.setOutput('stack-name', stackName);
+    core.setOutput('template', config.template);
 
     core.info('Action completed successfully!');
 
