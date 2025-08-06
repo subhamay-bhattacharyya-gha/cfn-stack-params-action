@@ -1,0 +1,6 @@
+{
+  "Environment": "production",
+  "CostCenter": "Production",
+  "BackupRequired": "true",
+  "Compliance": "Required"
+}

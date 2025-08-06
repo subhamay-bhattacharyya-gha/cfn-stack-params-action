@@ -1,0 +1,7 @@
+{
+  "Environment": "default",
+  "Project": "global-app",
+  "Owner": "Platform Team",
+  "CostCenter": "Infrastructure",
+  "MultiRegion": "true"
+}

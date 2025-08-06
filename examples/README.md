@@ -18,21 +18,25 @@ examples/
 - Simple web application with minimal parameters
 - Single environment configuration
 - Basic parameter overrides
+- Default tags with production overrides
 
 ### 2. Microservice (`microservice/`)
 - Microservice with database dependencies
 - Multiple environment configurations
 - Complex parameter merging
+- Service-specific tags
 
 ### 3. Multi-Region (`multi-region/`)
 - Deployment across multiple AWS regions
 - Region-specific parameter overrides
 - Environment and region matrix
+- Multi-region specific tags
 
 ### 4. Complex Enterprise (`complex-enterprise/`)
 - Enterprise-grade configuration
 - Multiple parameter files
 - Advanced parameter structures with nested objects
+- Comprehensive enterprise tagging strategy
 
 ## Usage
 

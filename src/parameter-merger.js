@@ -88,6 +88,94 @@ export class ParameterMerger {
   }
 
   /**
+   * Formats merged tags for CloudFormation deployment
+   * Converts key-value pairs to CloudFormation tags array format
+   * 
+   * @param {Object} mergedTags - Merged tags object
+   * @returns {Array} Array of CloudFormation tag objects
+   */
+  formatTagsForCloudFormation(mergedTags) {
+    // Validate input tags
+    if (!mergedTags || typeof mergedTags !== 'object' || Array.isArray(mergedTags)) {
+      throw new Error('Merged tags must be a valid object (not an array)');
+    }
+
+    try {
+      // Validate tags structure before formatting
+      this.validateTagsObject(mergedTags, 'merged');
+
+      return Object.entries(mergedTags).map(([key, value]) => {
+        // Validate tag name
+        if (!key || typeof key !== 'string' || key.trim() === '') {
+          throw new Error(`Invalid tag name: ${key}. Tag names must be non-empty strings.`);
+        }
+
+        // Convert value to string, handling different types appropriately
+        let stringValue;
+        if (value === null || value === undefined) {
+          throw new Error(`Tag '${key}' has null or undefined value. All tags must have valid values.`);
+        } else if (typeof value === 'object') {
+          // For objects and arrays, stringify them
+          stringValue = JSON.stringify(value);
+        } else {
+          stringValue = String(value);
+        }
+
+        return {
+          Key: key,
+          Value: stringValue
+        };
+      });
+    } catch (error) {
+      throw new Error(`Failed to format tags for CloudFormation: ${error.message}`);
+    }
+  }
+
+  /**
+   * Validates tags object structure and content
+   * @param {Object} tags - Tags object to validate
+   * @param {string} type - Type of tags (for error messages)
+   * @throws {Error} If tags are invalid
+   */
+  validateTagsObject(tags, type) {
+    if (!tags || typeof tags !== 'object' || Array.isArray(tags)) {
+      throw new Error(`${type} tags must be a valid object`);
+    }
+
+    const keys = Object.keys(tags);
+    
+    // Check for reasonable number of tags (CloudFormation limit is 50)
+    if (keys.length > 50) {
+      throw new Error(`Too many ${type} tags (${keys.length}). Maximum supported is 50 tags.`);
+    }
+
+    // Validate each tag
+    for (const key of keys) {
+      // Validate tag name
+      if (!key || typeof key !== 'string' || key.trim() === '') {
+        throw new Error(`Invalid ${type} tag name: '${key}'. Tag names must be non-empty strings.`);
+      }
+
+      if (key.length > 128) {
+        throw new Error(`${type} tag name '${key}' is too long (${key.length} characters). Maximum length is 128 characters.`);
+      }
+
+      const value = tags[key];
+      
+      // Validate tag value
+      if (value === null || value === undefined) {
+        throw new Error(`${type} tag '${key}' has null or undefined value`);
+      }
+
+      // Check value length when converted to string
+      const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+      if (stringValue.length > 256) {
+        throw new Error(`${type} tag '${key}' value is too long (${stringValue.length} characters). Maximum length is 256 characters.`);
+      }
+    }
+  }
+
+  /**
    * Validates parameter object structure and content
    * @param {Object} params - Parameters object to validate
    * @param {string} type - Type of parameters (for error messages)

@@ -3,7 +3,7 @@
 ![Built with Kiro](https://img.shields.io/badge/Built%20with-Kiro-blue?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K)&nbsp;![GitHub Action](https://img.shields.io/badge/GitHub-Action-blue?logo=github)&nbsp;![Release](https://github.com/subhamay-bhattacharyya-gha/cfn-stack-params-action/actions/workflows/release.yaml/badge.svg)&nbsp;![Commit Activity](https://img.shields.io/github/commit-activity/t/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Bash](https://img.shields.io/badge/Language-Bash-green?logo=gnubash)&nbsp;![CloudFormation](https://img.shields.io/badge/AWS-CloudFormation-orange?logo=amazonaws)&nbsp;![Last Commit](https://img.shields.io/github/last-commit/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Release Date](https://img.shields.io/github/release-date/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Repo Size](https://img.shields.io/github/repo-size/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![File Count](https://img.shields.io/github/directory-file-count/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Issues](https://img.shields.io/github/issues/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Top Language](https://img.shields.io/github/languages/top/subhamay-bhattacharyya-gha/cfn-stack-params-action)&nbsp;![Custom Endpoint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bsubhamay/4b247fb46db91d8488e878ac1b4d3920/raw/cfn-stack-params-action.json?)
 
 
-A GitHub Action that processes CloudFormation deployment configurations, merges parameter files with environment-specific overrides, and generates outputs for CloudFormation stack deployment. Features include parameter processing, dynamic stack naming with CI build integration, GitHub Action summaries, and deployment artifact creation.
+A GitHub Action that processes CloudFormation deployment configurations, merges parameter and tag files with environment-specific overrides, and generates outputs for CloudFormation stack deployment. Features include parameter and tag processing, dynamic stack naming with CI build integration, automatic GitHub metadata tagging, GitHub Action summaries, and deployment artifact creation.
 
 ## Features
 
@@ -11,8 +11,9 @@ A GitHub Action that processes CloudFormation deployment configurations, merges 
 - 🔄 **Parameter Merging**: Automatically merges default parameters with environment-specific overrides
 - 🏷️ **Dynamic Stack Naming**: Generates appropriate stack names for both CI builds and environment deployments
 - 🎲 **CI Build Identifiers**: Creates unique identifiers for CI builds to enable parallel deployments
+- 🏷️ **Tag Management**: Merges default and environment-specific tags with automatic GitHub metadata
 - ✅ **Comprehensive Validation**: Validates JSON files and required fields with clear error messages
-- 📊 **GitHub Action Summary**: Displays processed parameters and configuration in the workflow summary
+- 📊 **GitHub Action Summary**: Displays processed parameters, tags, and configuration in the workflow summary
 - 📦 **Deployment Artifacts**: Creates and uploads deployment JSON files for reuse and audit trails
 - 🧪 **Well Tested**: Extensive unit and integration test coverage
 
@@ -82,6 +83,8 @@ Specifies how many days to retain the deployment artifact in GitHub Actions. The
 |------|-------------|------|---------|
 | `parameters` | CloudFormation parameters in JSON array format | String | `[{"ParameterName":"VpcId","ParameterValue":"vpc-123"}]` |
 | `stack-name` | Generated CloudFormation stack name | String | `myproject-api-sb-prod-us-east-1` |
+| `template` | CloudFormation template filename from configuration | String | `infrastructure.yaml` |
+| `tags` | CloudFormation tags in JSON array format | String | `[{"Key":"Environment","Value":"production"}]` |
 
 ### Output Details
 
@@ -95,6 +98,22 @@ JSON string containing an array of CloudFormation parameters in the format:
   }
 ]
 ```
+
+#### `template`
+CloudFormation template filename as specified in the `cloudformation.json` configuration file.
+
+#### `tags`
+JSON string containing an array of CloudFormation tags in the format:
+```json
+[
+  {
+    "Key": "TagKey",
+    "Value": "TagValue"
+  }
+]
+```
+
+Tags include user-defined tags from the `tags/` directory plus automatically added GitHub metadata tags.
 
 #### `stack-name`
 Generated stack name following these patterns:
@@ -110,11 +129,16 @@ Your CloudFormation configuration should follow this directory structure:
 ```
 {cfn-directory}/
 ├── cloudformation.json          # Main configuration
-└── params/
-    ├── default.json            # Default parameters (required)
-    ├── sb-devl-us-east-1.json  # Environment-specific parameters
-    ├── sb-test-us-east-1.json  # Environment-specific parameters
-    └── sb-prod-us-east-1.json  # Environment-specific parameters
+├── params/
+│   ├── default.json            # Default parameters (required)
+│   ├── sb-devl-us-east-1.json  # Environment-specific parameters
+│   ├── sb-test-us-east-1.json  # Environment-specific parameters
+│   └── sb-prod-us-east-1.json  # Environment-specific parameters
+└── tags/                       # Tags directory (optional)
+    ├── default.json            # Default tags
+    ├── sb-devl-us-east-1.json  # Environment-specific tags
+    ├── sb-test-us-east-1.json  # Environment-specific tags
+    └── sb-prod-us-east-1.json  # Environment-specific tags
 ```
 
 ### cloudformation.json
@@ -163,6 +187,46 @@ Environment-specific parameters that override defaults:
 }
 ```
 
+### Tag Files
+
+#### tags/default.json (Optional)
+Contains default tag values that apply to all environments:
+
+```json
+{
+  "Environment": "default",
+  "Project": "my-application",
+  "Owner": "DevOps",
+  "CostCenter": "Engineering"
+}
+```
+
+#### tags/{environment}.json (Optional)
+Environment-specific tags that override defaults:
+
+```json
+{
+  "Environment": "production",
+  "CostCenter": "Production",
+  "BackupRequired": "true",
+  "Compliance": "SOX"
+}
+```
+
+#### Automatic GitHub Metadata Tags
+The action automatically adds these GitHub metadata tags to every deployment:
+
+| Tag Name | Description | Example Value |
+|----------|-------------|---------------|
+| `GitCommit` | Short commit hash (8 characters) | `a1b2c3d4` |
+| `GitLastModifiedBy` | GitHub actor who triggered the workflow | `john.doe` |
+| `GitLastModifiedAt` | ISO timestamp of action execution | `2025-08-01T01:30:45.123Z` |
+| `GitFile` | Workflow name | `Deploy to Production` |
+| `GitOrg` | GitHub organization name | `my-company` |
+| `GitRepo` | Repository name | `my-application` |
+
+These tags are automatically added and cannot be overridden by user-defined tags.
+
 **Parameter Merging Rules:**
 1. Default parameters are loaded first
 2. Environment-specific parameters override matching keys
@@ -170,10 +234,24 @@ Environment-specific parameters that override defaults:
 4. For CI builds, a `CiBuildId` parameter is automatically added with value `-{ci-build-id}`
 5. Final output contains merged parameters in CloudFormation format
 
+**Tag Merging Rules:**
+1. Default tags are loaded first from `tags/default.json` (optional)
+2. Environment-specific tags override matching keys from `tags/{environment}.json` (optional)
+3. GitHub metadata tags are automatically added:
+   - `GitCommit`: Short commit hash (8 characters)
+   - `GitLastModifiedBy`: GitHub actor who triggered the workflow
+   - `GitLastModifiedAt`: ISO timestamp of action execution
+   - `GitFile`: Workflow name
+   - `GitOrg`: GitHub organization name
+   - `GitRepo`: Repository name
+4. Final output contains merged tags in CloudFormation format
+
 **Deployment Artifacts:**
 The action automatically creates a `deployment.json` file containing:
 - Processed CloudFormation parameters
+- Processed CloudFormation tags
 - Generated stack name
+- Template path
 - Uploaded as a GitHub Actions artifact for the specified retention period
 
 ## Usage Examples
@@ -206,7 +284,8 @@ jobs:
           aws cloudformation deploy \
             --stack-name ${{ steps.cfn-config.outputs.stack-name }} \
             --template-file infrastructure/template.yaml \
-            --parameter-overrides '${{ steps.cfn-config.outputs.parameters }}'
+            --parameter-overrides '${{ steps.cfn-config.outputs.parameters }}' \
+            --tags '${{ steps.cfn-config.outputs.tags }}'
 ```
 
 ### CI Build with Feature Branch
@@ -236,6 +315,7 @@ jobs:
         run: |
           echo "Stack Name: ${{ steps.cfn-config.outputs.stack-name }}"
           echo "Parameters: ${{ steps.cfn-config.outputs.parameters }}"
+          echo "Tags: ${{ steps.cfn-config.outputs.tags }}"
 ```
 
 ### Multi-Environment Matrix Deployment
@@ -272,7 +352,8 @@ jobs:
           aws cloudformation deploy \
             --stack-name ${{ steps.cfn-config.outputs.stack-name }} \
             --template-file infrastructure/template.yaml \
-            --parameter-overrides '${{ steps.cfn-config.outputs.parameters }}'
+            --parameter-overrides '${{ steps.cfn-config.outputs.parameters }}' \
+            --tags '${{ steps.cfn-config.outputs.tags }}'
 ```
 
 ### Custom Configuration Directory
@@ -309,7 +390,15 @@ jobs:
 - name: Use Deployment Configuration
   run: |
     STACK_NAME=$(jq -r '.["stack-name"]' deployment/deployment.json)
+    TEMPLATE_PATH=$(jq -r '.["template-path"]' deployment/deployment.json)
+    PARAMETERS=$(jq -r '.parameters' deployment/deployment.json)
+    TAGS=$(jq -r '.tags' deployment/deployment.json)
     echo "Deploying to stack: $STACK_NAME"
+    aws cloudformation deploy \
+      --stack-name "$STACK_NAME" \
+      --template-file "$TEMPLATE_PATH" \
+      --parameter-overrides "$PARAMETERS" \
+      --tags "$TAGS"
 ```
 
 ## Error Scenarios

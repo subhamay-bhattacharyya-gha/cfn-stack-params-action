@@ -48,6 +48,18 @@ async function run() {
       core.info('No environment-specific parameters found, using defaults only');
     }
 
+    // Read tag files
+    core.info('Reading tag files...');
+    const defaultTags = await configReader.readDefaultTags(folder);
+    core.info(`Loaded ${Object.keys(defaultTags).length} default tags`);
+
+    const envTags = await configReader.readEnvironmentTags(folder, environment);
+    if (envTags) {
+      core.info(`Loaded ${Object.keys(envTags).length} environment-specific tags for ${environment}`);
+    } else {
+      core.info('No environment-specific tags found, using defaults only');
+    }
+
     // Generate CI build ID first (needed for parameters)
     core.info('Generating CI build ID...');
     const ciBuildId = isCiBuild ? ciBuildIdGenerator.generateRandomId() : '';
@@ -69,6 +81,31 @@ async function run() {
 
     const formattedParams = parameterMerger.formatForCloudFormation(mergedParams);
     core.info(`Generated ${formattedParams.length} CloudFormation parameters`);
+
+    // Merge tags
+    core.info('Merging tags...');
+    const mergedTags = parameterMerger.mergeParameters(defaultTags, envTags);
+    
+    // Add GitHub metadata tags
+    core.info('Adding GitHub metadata tags...');
+    const gitCommit = process.env.GITHUB_SHA || 'unknown';
+    const gitActor = process.env.GITHUB_ACTOR || 'unknown';
+    const gitWorkflow = process.env.GITHUB_WORKFLOW || 'unknown';
+    const gitRepository = process.env.GITHUB_REPOSITORY || 'unknown';
+    const gitLastModifiedAt = new Date().toISOString();
+    const [gitOrg, gitRepo] = gitRepository.split('/');
+    
+    mergedTags.GitCommit = gitCommit.substring(0, 8); // Short commit hash
+    mergedTags.GitLastModifiedBy = gitActor;
+    mergedTags.GitLastModifiedAt = gitLastModifiedAt;
+    mergedTags.GitFile = gitWorkflow;
+    mergedTags.GitOrg = gitOrg || 'unknown';
+    mergedTags.GitRepo = gitRepo || 'unknown';
+    
+    core.info(`Added GitHub metadata tags: GitCommit=${mergedTags.GitCommit}, GitLastModifiedBy=${mergedTags.GitLastModifiedBy}, GitLastModifiedAt=${mergedTags.GitLastModifiedAt}, GitFile=${mergedTags.GitFile}, GitOrg=${mergedTags.GitOrg}, GitRepo=${mergedTags.GitRepo}`);
+    
+    const formattedTags = parameterMerger.formatTagsForCloudFormation(mergedTags);
+    core.info(`Generated ${formattedTags.length} CloudFormation tags (including GitHub metadata)`);
 
     // Generate stack name
     core.info('Generating stack name...');
@@ -97,6 +134,7 @@ async function run() {
     core.setOutput('parameters', JSON.stringify(formattedParams));
     core.setOutput('stack-name', stackName);
     core.setOutput('template', config.template);
+    core.setOutput('tags', JSON.stringify(formattedTags));
 
     core.info('Action completed successfully!');
 
