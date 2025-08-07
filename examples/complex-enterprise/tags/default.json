@@ -1,0 +1,9 @@
+{
+  "Environment": "default",
+  "Project": "enterprise-platform",
+  "Owner": "Platform Engineering",
+  "CostCenter": "Infrastructure",
+  "BusinessUnit": "Technology",
+  "DataClassification": "Internal",
+  "BackupRequired": "true"
+}

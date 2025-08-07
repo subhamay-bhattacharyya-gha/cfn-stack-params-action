@@ -194,6 +194,131 @@ class ConfigurationReader {
   }
 
   /**
+   * Read default tags from the tags subfolder
+   * @param {string} folderPath - Path to the configuration folder
+   * @returns {Promise<Object>} Parsed default.json content from tags directory
+   * @throws {Error} If file is missing or contains invalid JSON
+   */
+  async readDefaultTags(folderPath) {
+    // Validate input parameters
+    if (!folderPath || typeof folderPath !== 'string') {
+      throw new Error('Folder path must be a valid string');
+    }
+
+    const defaultTagsPath = path.join(folderPath, 'tags', 'default.json');
+    
+    try {
+      // Check if file exists and is accessible
+      const stats = await fs.stat(defaultTagsPath);
+      if (!stats.isFile()) {
+        throw new Error(`Default tags path exists but is not a file: ${defaultTagsPath}`);
+      }
+
+      const tagsContent = await fs.readFile(defaultTagsPath, 'utf8');
+      
+      // Check for empty file (empty object is valid)
+      if (!tagsContent.trim()) {
+        throw new Error(`Default tags file is empty: ${defaultTagsPath}. Expected at least an empty JSON object {}.`);
+      }
+
+      let tags;
+      try {
+        tags = JSON.parse(tagsContent);
+      } catch (parseError) {
+        throw new Error(`Invalid JSON format in default.json at ${defaultTagsPath}: ${parseError.message}. Please check the JSON syntax.`);
+      }
+
+      // Validate that tags is an object
+      if (!tags || typeof tags !== 'object' || Array.isArray(tags)) {
+        throw new Error(`Default tags must be a JSON object, got ${typeof tags}`);
+      }
+
+      return tags;
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        // Tags are optional, return empty object if not found
+        return {};
+      } else if (error.code === 'EACCES') {
+        throw new Error(`Permission denied accessing default tags file: ${defaultTagsPath}. Please check file permissions.`);
+      } else if (error.code === 'EISDIR') {
+        throw new Error(`Expected file but found directory: ${defaultTagsPath}. Please ensure default.json is a file, not a directory.`);
+      } else if (error.message.includes('Invalid JSON format') ||
+                 error.message.includes('must be a JSON object') ||
+                 error.message.includes('is empty') ||
+                 error.message.includes('must be a valid string')) {
+        throw error;
+      } else {
+        throw new Error(`Failed to read default tags from ${defaultTagsPath}: ${error.message}`);
+      }
+    }
+  }
+
+  /**
+   * Read environment-specific tags from the tags subfolder
+   * @param {string} folderPath - Path to the configuration folder
+   * @param {string} environment - Environment name for the tags file
+   * @returns {Promise<Object|null>} Parsed environment-specific JSON content or null if file doesn't exist
+   * @throws {Error} If file contains invalid JSON
+   */
+  async readEnvironmentTags(folderPath, environment) {
+    // Validate input parameters
+    if (!folderPath || typeof folderPath !== 'string') {
+      throw new Error('Folder path must be a valid string');
+    }
+
+    if (!environment || typeof environment !== 'string' || environment.trim() === '') {
+      return null;
+    }
+    
+    const envTagsPath = path.join(folderPath, 'tags', `${environment}.json`);
+    
+    try {
+      // Check if file exists and is accessible
+      const stats = await fs.stat(envTagsPath);
+      if (!stats.isFile()) {
+        throw new Error(`Environment tags path exists but is not a file: ${envTagsPath}`);
+      }
+
+      const tagsContent = await fs.readFile(envTagsPath, 'utf8');
+      
+      // Check for empty file (empty object is valid)
+      if (!tagsContent.trim()) {
+        throw new Error(`Environment tags file is empty: ${envTagsPath}. Expected at least an empty JSON object {}.`);
+      }
+
+      let tags;
+      try {
+        tags = JSON.parse(tagsContent);
+      } catch (parseError) {
+        throw new Error(`Invalid JSON format in ${environment}.json at ${envTagsPath}: ${parseError.message}. Please check the JSON syntax.`);
+      }
+
+      // Validate that tags is an object
+      if (!tags || typeof tags !== 'object' || Array.isArray(tags)) {
+        throw new Error(`Environment tags must be a JSON object, got ${typeof tags}`);
+      }
+
+      return tags;
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        // Environment-specific tags file is optional, return null if not found
+        return null;
+      } else if (error.code === 'EACCES') {
+        throw new Error(`Permission denied accessing environment tags file: ${envTagsPath}. Please check file permissions.`);
+      } else if (error.code === 'EISDIR') {
+        throw new Error(`Expected file but found directory: ${envTagsPath}. Please ensure ${environment}.json is a file, not a directory.`);
+      } else if (error.message.includes('Invalid JSON format') ||
+                 error.message.includes('must be a JSON object') ||
+                 error.message.includes('is empty') ||
+                 error.message.includes('must be a valid string')) {
+        throw error;
+      } else {
+        throw new Error(`Failed to read environment tags from ${envTagsPath}: ${error.message}`);
+      }
+    }
+  }
+
+  /**
    * Validate that a JSON object contains all required fields
    * @param {Object} data - The JSON object to validate
    * @param {string[]} requiredFields - Array of required field names

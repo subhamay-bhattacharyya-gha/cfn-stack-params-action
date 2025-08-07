@@ -1,0 +1,7 @@
+{
+  "Environment": "default",
+  "Project": "user-service",
+  "Owner": "Backend Team",
+  "CostCenter": "Engineering",
+  "ServiceType": "microservice"
+}
