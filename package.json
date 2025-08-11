@@ -19,7 +19,7 @@
     "@semantic-release/release-notes-generator": "^13.0.0",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
-    "semantic-release": "^23.0.0"
+    "semantic-release": "^24.2.7"
   },
   "config": {
     "commitizen": {
